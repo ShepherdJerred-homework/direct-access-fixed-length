@@ -1,6 +1,7 @@
 //This program tests the dataFile class which implements the reading and writing of fixed
 //length records using direct access.
 
+#include "stdafx.h"
 #include <iostream>
 #include "DataFile.h"
 
@@ -12,7 +13,7 @@ struct student {
     int classification;
 };
 
-void addRecords(DataFile & s) {
+void addRecords(DataFile& s) {
     char response;
     do {
         cout << "enter a record (y/n): ";
@@ -42,7 +43,7 @@ void addRecords(DataFile & s) {
     } while (response == 'y');
 }
 
-void printRecords(DataFile & s) {
+void printRecords(DataFile& s) {
     for (int i = 0; i < s.recordCount(); i++) {
         student studentRec;
         s.getRecord(i, &studentRec);
@@ -98,4 +99,3 @@ void main() {
 
     cin.get();
 }
-
