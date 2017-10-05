@@ -1,7 +1,5 @@
-//This program tests the dataFile class which implements the reading and writing of fixed
-//length records using direct access.
+//This program tests the dataFile class error indicators.
 
-#include "stdafx.h"
 #include <iostream>
 #include "DataFile.h"
 
@@ -33,9 +31,15 @@ void addRecords(DataFile& s) {
             cin >> studentRec.classification;
             cin.get();
 
-            s.putRecord(s.recordCount(), &studentRec);
+            int rrn;
+            cout << "enter a relative record number where to store record: " << endl;
+            cin >> rrn;
+            cin.get();
+
+            s.putRecord(rrn, &studentRec);
             if (s.fileStatus() == fsPutFail) {
                 cerr << "error writing record...program exiting" << endl;
+                cin.get();
                 exit(2);
             }
             s.updateRecordCount(1);
@@ -46,16 +50,17 @@ void addRecords(DataFile& s) {
 void printRecords(DataFile& s) {
     for (int i = 0; i < s.recordCount(); i++) {
         student studentRec;
-        s.getRecord(i, &studentRec);
+        s.getRecord(10, &studentRec);
         if (s.fileStatus() == fsGetFail) {
             cerr << "program could not get a record...program exiting" << endl;
+            cin.get();
             exit(3);
         } else {
             cout << "RECORD #: " << i << "  "
-                << "NAME: " << studentRec.name << "  "
-                << "GPA: " << studentRec.gpa << "  "
-                << "CLASSIFICATION: " << studentRec.classification
-                << endl;
+                 << "NAME: " << studentRec.name << "  "
+                 << "GPA: " << studentRec.gpa << "  "
+                 << "CLASSIFICATION: " << studentRec.classification
+                 << endl;
         }
     }
     cout << "Total of " << s.recordCount() << " records" << endl << endl;
@@ -68,17 +73,13 @@ void main() {
     cout << "Enter file to open: ";
     cin.getline(fileName, 80);
 
-    //Open the file and read in information
     students.openFile(fileName);
-
-    //Did the open fail?
     if (students.fileStatus() == fsOpenFail) {
         cout << "File does not exist, create it? (y/n): ";
         char response;
         cin >> response;
         cin.get();
         if (response == 'y') {
-            //Create an empty "dataFile" with correct structure
             students.createFile(fileName, sizeof student);
             if (students.fileStatus() == fsCreateFail) {
                 cerr << "file could not be created...program exiting" << endl;
