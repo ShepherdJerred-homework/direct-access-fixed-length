@@ -46,16 +46,32 @@ void DataFile::closeFile() {
     }
 }
 
-void DataFile::putRecord(long recordNumber, const void *locationToReadFrom) {
-
+void DataFile::putRecord(long recordNumber, const void *dataToWriteToFile) {
+    cout << recordNumber << endl;
+    cout << header.recordCount;
+    if (0 <= recordNumber && recordNumber <= header.recordCount) {
+        long location = recordStart + ((recordNumber - 1) * header.recordSize);
+        file.seekp(location, ios::beg);
+        file.write((char *) dataToWriteToFile, sizeof dataToWriteToFile);
+        fStatus = fsSuccess;
+    } else {
+        fStatus = fsPutFail;
+    }
 }
 
-void DataFile::getRecord(long recordNumber, const void *locationToWriteTo) {
-
+void DataFile::getRecord(long recordNumber, const void *locationToWriteInto) {
+    if (0 <= recordNumber <= header.recordCount) {
+        long location = recordStart + ((recordNumber - 1) * header.recordSize);
+        file.seekg(location, ios::beg);
+        file.read((char *) &locationToWriteInto, header.recordSize);
+        fStatus = fsSuccess;
+    } else {
+        fStatus = fsGetFail;
+    }
 }
 
 void DataFile::updateRecordCount(int newRecordCount) {
-    header.recordCount = newRecordCount;
+    header.recordCount = header.recordCount + newRecordCount;
 }
 
 int DataFile::recordCount() {

@@ -32,9 +32,9 @@ public:
 
     void closeFile();
 
-    void putRecord(long recordNumber, const void *locationToReadFrom);
+    void putRecord(long recordNumber, const void *dataToWriteToFile);
 
-    void getRecord(long recordNumber, const void *locationToWriteTo);
+    void getRecord(long recordNumber, const void *locationToWriteInto);
 
     int recordCount();
 
