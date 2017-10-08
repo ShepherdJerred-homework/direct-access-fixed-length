@@ -24,19 +24,26 @@ void DataFile::createFile(char *fileName, unsigned int sizeOfRecordsInBytes) {
 
 void DataFile::openFile(char *fileName) {
     file.open(fileName);
-    // TODO read header
+    readHeader();
     if (file.is_open()) {
         fStatus = fsSuccess;
+        cout << "File opened" << endl;
     } else {
         fStatus = fsOpenFail;
+        cout << "Error opening file" << endl;
     }
     readHeader();
 }
 
 void DataFile::closeFile() {
-    // TODO write file header?
+    writeHeader();
     file.close();
-    // TODO set status
+    // TODO make this an actual condition
+    if (true) {
+        fStatus = fsSuccess;
+    } else {
+        fStatus = fsCloseFail;
+    }
 }
 
 void DataFile::putRecord(long recordNumber, const void *locationToReadFrom) {
@@ -48,7 +55,7 @@ void DataFile::getRecord(long recordNumber, const void *locationToWriteTo) {
 }
 
 void DataFile::updateRecordCount(int newRecordCount) {
-
+    header.recordCount = newRecordCount;
 }
 
 int DataFile::recordCount() {
