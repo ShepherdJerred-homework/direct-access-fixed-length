@@ -40,6 +40,7 @@ void addRecords(DataFile &s) {
 }
 
 void printRecords(DataFile &s) {
+    cout << endl << endl;
     for (int i = 0; i < s.recordCount(); i++) {
         student studentRec;
         s.getRecord(i, &studentRec);
