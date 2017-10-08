@@ -1,15 +1,25 @@
+#include <iostream>
 #include "DataFile.h"
 
+using std::ios;
+using std::cout;
+using std::endl;
+
 void DataFile::createFile(char *fileName, unsigned int sizeOfRecordsInBytes) {
-    file.open(fileName);
-    if (file.is_open()) {
-        fStatus = fsSuccess;
-    } else {
-        fStatus = fsCloseFail;
-    }
-    // TODO create header
+    file.open(fileName, ios::out | ios::binary);
     file.close();
-    recSize = sizeOfRecordsInBytes;
+    file.open(fileName, ios::in | ios::out | ios::binary);
+    if (!file.fail()) {
+        fStatus = fsSuccess;
+        cout << "File created" << endl;
+    } else {
+        fStatus = fsCreateFail;
+        cout << "Error creating file" << endl;
+    }
+    header.recordCount = 0;
+    header.recordSize = sizeOfRecordsInBytes;
+    writeHeader();
+    file.close();
 }
 
 void DataFile::openFile(char *fileName) {
@@ -20,6 +30,7 @@ void DataFile::openFile(char *fileName) {
     } else {
         fStatus = fsOpenFail;
     }
+    readHeader();
 }
 
 void DataFile::closeFile() {
@@ -41,9 +52,24 @@ void DataFile::updateRecordCount(int newRecordCount) {
 }
 
 int DataFile::recordCount() {
-    return recCount;
+    return header.recordCount;
 }
 
 int DataFile::fileStatus() {
     return fStatus;
+}
+
+void DataFile::writeHeader() {
+    file.seekp(ios::beg);
+    file.write((char *) &header, sizeof header);
+}
+
+void DataFile::readHeader() {
+    unsigned char buffer[sizeof header];
+
+    file.seekg(ios::beg);
+    file.read((char *) &buffer, sizeof header);
+
+    FileHeader * fileHeader = (FileHeader *) buffer;
+    header = *fileHeader;
 }

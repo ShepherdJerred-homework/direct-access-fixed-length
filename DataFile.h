@@ -12,12 +12,19 @@
 
 using std::fstream;
 
+struct FileHeader {
+    int recordSize;
+    int recordCount;
+};
+
 class DataFile {
 private:
     fstream file;
-    int recSize;
-    int recCount;
+    FileHeader header;
     int fStatus;
+    int recordStart = sizeof header + 1;
+    void writeHeader();
+    void readHeader();
 public:
     void createFile(char *fileName, unsigned int sizeOfRecordsInBytes);
 
