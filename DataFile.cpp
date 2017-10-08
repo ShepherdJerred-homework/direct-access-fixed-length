@@ -1,3 +1,8 @@
+/*
+ * DAFL by Jerred Shepherd
+ * This class provides a clean interface for storing a retrieving fixed data in a binary file
+ */
+
 #include <iostream>
 #include "DataFile.h"
 
@@ -5,7 +10,13 @@ using std::ios;
 using std::cout;
 using std::endl;
 
+/**
+ * Create a file with header
+ * @param fileName
+ * @param sizeOfRecordsInBytes
+ */
 void DataFile::createFile(char *fileName, unsigned int sizeOfRecordsInBytes) {
+    file.clear();
     file.open(fileName, ios::out | ios::binary);
     file.close();
     file.open(fileName, ios::in | ios::out | ios::binary);
@@ -19,12 +30,14 @@ void DataFile::createFile(char *fileName, unsigned int sizeOfRecordsInBytes) {
     header.recordCount = 0;
     header.recordSize = sizeOfRecordsInBytes;
     writeHeader();
-    file.close();
 }
 
+/**
+ * Open a previously created file to read and write data
+ * @param fileName
+ */
 void DataFile::openFile(char *fileName) {
     file.open(fileName);
-    readHeader();
     if (file.is_open()) {
         fStatus = fsSuccess;
         cout << "File opened" << endl;
@@ -35,8 +48,12 @@ void DataFile::openFile(char *fileName) {
     readHeader();
 }
 
+/**
+ * Close an open file
+ */
 void DataFile::closeFile() {
     writeHeader();
+    file.flush();
     file.close();
     // TODO make this an actual condition
     if (true) {
@@ -46,11 +63,13 @@ void DataFile::closeFile() {
     }
 }
 
+
+/**
+ * Store a new record in the data file
+ * @param recordNumber
+ * @param dataToWriteToFile
+ */
 void DataFile::putRecord(long recordNumber, const void *dataToWriteToFile) {
-
-    cout << "W REC: " << recordNumber << endl;
-    cout << "W DATA: " << &dataToWriteToFile << endl;
-
     if (0 <= recordNumber && recordNumber <= header.recordCount) {
         long location = recordStart + (recordNumber * header.recordSize);
         file.seekp(location);
@@ -61,6 +80,11 @@ void DataFile::putRecord(long recordNumber, const void *dataToWriteToFile) {
     }
 }
 
+/**
+ * Get a record from the data file
+ * @param recordNumber
+ * @param locationToWriteInto
+ */
 void DataFile::getRecord(long recordNumber, const void *locationToWriteInto) {
     if (0 <= recordNumber && recordNumber <= header.recordCount) {
         long location = recordStart + (recordNumber * header.recordSize);
@@ -70,12 +94,12 @@ void DataFile::getRecord(long recordNumber, const void *locationToWriteInto) {
     } else {
         fStatus = fsGetFail;
     }
-
-    cout << "R REC: " << recordNumber << endl;
-    cout << "R DATA: " << &locationToWriteInto << endl;
-
 }
 
+/**
+ * Update the record count and write it to file
+ * @param newRecordCount
+ */
 void DataFile::updateRecordCount(int newRecordCount) {
     header.recordCount = header.recordCount + newRecordCount;
     writeHeader();
@@ -89,11 +113,17 @@ int DataFile::fileStatus() {
     return fStatus;
 }
 
+/**
+ * Write the header struct to file
+ */
 void DataFile::writeHeader() {
     file.seekp(ios::beg);
     file.write((char *) &header, sizeof header);
 }
 
+/**
+ * Read the file header into a struct
+ */
 void DataFile::readHeader() {
     unsigned char buffer[sizeof header];
 
