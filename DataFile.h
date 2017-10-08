@@ -14,7 +14,7 @@ using std::fstream;
 
 class DataFile {
 private:
-    fstream stream;
+    fstream file;
     int recSize;
     int recCount;
     int fStatus;
