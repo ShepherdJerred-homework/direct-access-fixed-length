@@ -12,37 +12,34 @@ struct student {
     int classification;
 };
 
-void addRecords(DataFile& s) {
-    char response;
-    do {
-        cout << "enter a record (y/n): ";
-        cin >> response;
-        cin.get();
+void addRecords(DataFile &s) {
+    student s1;
+    strcpy_s(s1.name, "Jerred");
+    s1.gpa = 3.0;
+    s1.classification = 2;
 
-        if (response == 'y') {
-            student studentRec;
-            cout << "Name: ";
-            cin.getline(studentRec.name, 20);
+    s.putRecord(s.recordCount(), &s1);
 
-            cout << "GPA: ";
-            cin >> studentRec.gpa;
-            cin.get();
+    if (s.fileStatus() == fsPutFail) {
+        cerr << "Error writing record" << endl;
+        exit(2);
+    }
+    s.updateRecordCount(1);
 
-            cout << "Classification (4=sr, 3=jr, 2=so, 1=fr): ";
-            cin >> studentRec.classification;
-            cin.get();
+    student s2;
+    strcpy_s(s2.name, "Adam");
+    s2.gpa = 4.0;
+    s2.classification = 3;
 
-            s.putRecord(s.recordCount(), &studentRec);
-            if (s.fileStatus() == fsPutFail) {
-                cerr << "error writing record...program exiting" << endl;
-                exit(2);
-            }
-            s.updateRecordCount(1);
-        }
-    } while (response == 'y');
+    s.putRecord(s.recordCount(), &s2);
+    if (s.fileStatus() == fsPutFail) {
+        cerr << "Error writing record" << endl;
+        exit(2);
+    }
+    s.updateRecordCount(1);
 }
 
-void printRecords(DataFile& s) {
+void printRecords(DataFile &s) {
     for (int i = 0; i < s.recordCount(); i++) {
         student studentRec;
         s.getRecord(i, &studentRec);
@@ -50,11 +47,10 @@ void printRecords(DataFile& s) {
             cerr << "program could not get a record...program exiting" << endl;
             exit(3);
         } else {
-            cout << "RECORD #: " << i << "  "
-                 << "NAME: " << studentRec.name << "  "
-                 << "GPA: " << studentRec.gpa << "  "
-                 << "CLASSIFICATION: " << studentRec.classification
-                 << endl;
+            cout << "R #: " << i << endl
+                 << "N: " << studentRec.name << endl
+                 << "G: " << studentRec.gpa << endl
+                 << "C: " << studentRec.classification << endl << endl << endl;
         }
     }
     cout << "Total of " << s.recordCount() << " records" << endl << endl;
@@ -62,39 +58,33 @@ void printRecords(DataFile& s) {
 
 void main() {
     DataFile students;
-    char fileName[80];
+    char fileName[80] = "test.bin";
 
-    cout << "Enter file to open: ";
-    cin.getline(fileName, 80);
+    cout << "OPENING FILE " << fileName << endl;
 
     //Open the file and read in information
     students.openFile(fileName);
 
     //Did the open fail?
     if (students.fileStatus() == fsOpenFail) {
-        cout << "File does not exist, create it? (y/n): ";
-        char response;
-        cin >> response;
-        cin.get();
-        if (response == 'y') {
-            //Create an empty "dataFile" with correct structure
-            students.createFile(fileName, sizeof student);
-            if (students.fileStatus() == fsCreateFail) {
-                cerr << "file could not be created...program exiting" << endl;
-                exit(1);
-            }
-        } else {
-            cout << "program exiting" << endl;
-            exit(0);
+        cout << "File does not exist, creating" << endl;
+        students.createFile(fileName, sizeof student);
+        if (students.fileStatus() == fsCreateFail) {
+            cerr << "Error creating file" << endl;
+            exit(1);
         }
+    } else {
+        cout << "Error opening file" << endl;
+        exit(0);
     }
 
     addRecords(students);
     printRecords(students);
 
     students.closeFile();
-    if (students.fileStatus() == fsSuccess)
-        cout << "All data saved on file" << endl;
+    if (students.fileStatus() == fsSuccess) {
+        cout << "Data saved to file" << endl;
+    }
 
-    cin.get();
+    system("pause");
 }

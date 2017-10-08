@@ -54,7 +54,7 @@ void DataFile::putRecord(long recordNumber, const void *dataToWriteToFile) {
     if (0 <= recordNumber && recordNumber <= header.recordCount) {
         long location = recordStart + (recordNumber * header.recordSize);
         file.seekp(location);
-        file.write((char *) &dataToWriteToFile, header.recordSize);
+        file.write((char *) dataToWriteToFile, header.recordSize);
         fStatus = fsSuccess;
     } else {
         fStatus = fsPutFail;
@@ -65,7 +65,7 @@ void DataFile::getRecord(long recordNumber, const void *locationToWriteInto) {
     if (0 <= recordNumber && recordNumber <= header.recordCount) {
         long location = recordStart + (recordNumber * header.recordSize);
         file.seekg(location);
-        file.read((char *) &locationToWriteInto, header.recordSize);
+        file.read((char *) locationToWriteInto, header.recordSize);
         fStatus = fsSuccess;
     } else {
         fStatus = fsGetFail;
@@ -78,6 +78,7 @@ void DataFile::getRecord(long recordNumber, const void *locationToWriteInto) {
 
 void DataFile::updateRecordCount(int newRecordCount) {
     header.recordCount = header.recordCount + newRecordCount;
+    writeHeader();
 }
 
 int DataFile::recordCount() {
